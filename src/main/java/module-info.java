@@ -11,6 +11,6 @@ module com.example.meow {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
 
-    opens com.example.meow to javafx.fxml;
-    exports com.example.meow;
+    opens com.meow.meow to javafx.fxml;
+    exports com.meow.meow;
 }

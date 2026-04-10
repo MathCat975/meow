@@ -1,4 +1,4 @@
-package com.example.meow;
+package com.meow.meow;
 
 import javafx.application.Application;
 
