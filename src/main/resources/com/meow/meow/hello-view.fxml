@@ -125,8 +125,7 @@
       </ImageView>
       <Rectangle arcHeight="16.0" arcWidth="16.0" fill="#00000066" height="150.0" layoutX="284.0" layoutY="376.0" mouseTransparent="true" width="200.0" />
       <Label alignment="CENTER" layoutX="337.0" layoutY="436.0" mouseTransparent="true" prefWidth="94.0" style="-fx-background-color: rgba(0, 0, 0, 0.70); -fx-background-radius: 14; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 4 10;" text="LOCKED" textFill="WHITE" />
-      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="502.0" layoutY="376.0" pickOnBounds="true" preserveRatio="true">
-         <image>
+      <ImageView fx:id="snakeCard" fitHeight="150.0" fitWidth="200.0" layoutX="502.0" layoutY="376.0" onMouseClicked="#handleSnakeClick" pickOnBounds="true" preserveRatio="true">         <image>
             <Image url="@snake.png" />
          </image>
          <effect>
