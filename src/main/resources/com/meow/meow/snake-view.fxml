@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
+
+<StackPane prefHeight="620.0" prefWidth="1040.0" style="-fx-background-color: #0F1328;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.meow.meow.snake.SnakeGameController">
+    <children>
+        <BorderPane>
+            <top>
+                <HBox alignment="CENTER_LEFT" spacing="18.0" style="-fx-background-color: rgba(15, 19, 40, 0.85);" BorderPane.alignment="CENTER">
+                    <padding>
+                        <Insets bottom="10.0" left="14.0" right="14.0" top="10.0" />
+                    </padding>
+                    <children>
+                        <Label text="Snake" textFill="WHITE">
+                            <font>
+                                <Font name="System Bold" size="20.0" />
+                            </font>
+                        </Label>
+                        <Separator orientation="VERTICAL" prefHeight="22.0" />
+                        <Label fx:id="userLabel" text="Player: Profile" textFill="#e7e9f1" />
+                        <Label fx:id="scoreLabel" text="Score: 0" textFill="#e7e9f1" />
+                        <Label fx:id="multiplierLabel" text="Multiplier: x0.00" textFill="#e7e9f1" />
+                        <Label fx:id="timeLabel" text="Time: 0s" textFill="#e7e9f1" />
+                    </children>
+                </HBox>
+            </top>
+            <center>
+                <StackPane>
+                    <children>
+                        <Canvas fx:id="canvas" />
+                    </children>
+                </StackPane>
+            </center>
+            <right>
+                <VBox prefWidth="300.0" spacing="10.0" style="-fx-background-color: rgba(15, 19, 40, 0.75);" BorderPane.alignment="CENTER">
+                    <padding>
+                        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+                    </padding>
+                    <children>
+                        <Label fx:id="balanceLabel" text="Balance: $0.00" textFill="#e7e9f1" />
+                        <Label fx:id="bestScoreLabel" text="Best: 0" textFill="#cbd5e1" />
+                        <Separator />
+                        <Label text="Wager" textFill="WHITE">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <TextField fx:id="wagerField" promptText="Amount" text="10" />
+                        <CheckBox fx:id="obstaclesCheckBox" mnemonicParsing="false" selected="true" text="Activer obstacles" textFill="#e7e9f1" />
+                        <HBox spacing="10.0">
+                            <children>
+                                <Button fx:id="cashOutButton" mnemonicParsing="false" text="Place Bet" />
+                                <Button mnemonicParsing="false" onAction="#closeWindow" text="Retour menu" />
+                            </children>
+                        </HBox>
+                        <Label fx:id="statusLabel" text="Enter a wager then click Place Bet." textFill="#cbd5e1" wrapText="true" />
+                        <Separator />
+                        <Label text="Leaderboard" textFill="WHITE">
+                            <font>
+                                <Font name="System Bold" size="16.0" />
+                            </font>
+                        </Label>
+                        <ListView fx:id="scoreboard" prefHeight="560.0" style="-fx-background-color: transparent;" />
+                    </children>
+                </VBox>
+            </right>
+        </BorderPane>
+
+        <AnchorPane fx:id="gameOverPane" style="-fx-background-color: rgba(0, 0, 0, 0.55);" visible="false" managed="false">
+            <children>
+                <VBox alignment="CENTER" spacing="12.0" style="-fx-background-color: #111827; -fx-background-radius: 16; -fx-border-color: rgba(255,255,255,0.10); -fx-border-radius: 16;" AnchorPane.leftAnchor="300.0" AnchorPane.rightAnchor="300.0" AnchorPane.topAnchor="170.0" AnchorPane.bottomAnchor="170.0">
+                    <padding>
+                        <Insets bottom="20.0" left="24.0" right="24.0" top="20.0" />
+                    </padding>
+                    <children>
+                        <Label fx:id="gameOverTitleLabel" text="Game Over" textFill="WHITE">
+                            <font>
+                                <Font name="System Bold" size="26.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="finalUserLabel" text="Player: Profile" textFill="#e7e9f1" />
+                        <Label fx:id="finalScoreLabel" text="Score: 0" textFill="#e7e9f1" />
+                        <Label fx:id="finalTimeLabel" text="Time: 0s" textFill="#e7e9f1" />
+                        <Label fx:id="finalMultiplierLabel" text="Multiplier: x0.00" textFill="#e7e9f1" />
+                        <Label fx:id="finalWagerLabel" text="Wager: $0.00" textFill="#e7e9f1" />
+                        <Label fx:id="finalPayoutLabel" text="Payout: $0.00" textFill="#e7e9f1" />
+                        <Separator />
+                        <HBox alignment="CENTER" spacing="10.0">
+                            <children>
+                                <Button mnemonicParsing="false" onAction="#restart" text="Restart" />
+                                <Button mnemonicParsing="false" onAction="#closeWindow" text="Retour menu" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </AnchorPane>
+    </children>
+</StackPane>
+

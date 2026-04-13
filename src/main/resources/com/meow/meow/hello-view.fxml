@@ -120,7 +120,7 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </ImageView>
-      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="502.0" layoutY="376.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="snakeCard" fitHeight="150.0" fitWidth="200.0" layoutX="502.0" layoutY="376.0" onMouseClicked="#handleSnakeClick" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@snake.png" />
          </image>
