@@ -19,6 +19,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.stage.Stage;
 import javafx.geometry.Rectangle2D;
 import javafx.util.Duration;
 
@@ -106,6 +107,12 @@ public class BlackjackGameController {
 
     public void onShown() {
         betField.requestFocus();
+    }
+
+    @FXML
+    private void closeWindow() {
+        Stage stage = (Stage) statusLabel.getScene().getWindow();
+        stage.close();
     }
 
     private void startRound() {

@@ -28,6 +28,7 @@
             <Button fx:id="dealButton" mnemonicParsing="false" style="-fx-background-color: #eab308; -fx-text-fill: #111827; -fx-font-weight: 700; -fx-background-radius: 999;" text="Deal" />
             <Button fx:id="hitButton" mnemonicParsing="false" style="-fx-background-color: #2563eb; -fx-text-fill: #f8fafc; -fx-font-weight: 700; -fx-background-radius: 999;" text="Hit" />
             <Button fx:id="standButton" mnemonicParsing="false" style="-fx-background-color: #9333ea; -fx-text-fill: #f8fafc; -fx-font-weight: 700; -fx-background-radius: 999;" text="Stand" />
+            <Button mnemonicParsing="false" onAction="#closeWindow" style="-fx-background-color: #475569; -fx-text-fill: #f8fafc; -fx-font-weight: 700; -fx-background-radius: 999;" text="Back" />
          </children>
          <padding>
             <Insets bottom="12.0" left="14.0" right="14.0" top="12.0" />

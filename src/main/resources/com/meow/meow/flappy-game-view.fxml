@@ -20,6 +20,7 @@
             <TextField fx:id="wagerField" prefWidth="90.0" style="-fx-background-color: #303349; -fx-text-fill: #e7e9f1; -fx-background-radius: 999; -fx-padding: 8 12; -fx-prompt-text-fill: #8e91a6;" text="10" />
             <Button fx:id="startButton" mnemonicParsing="false" style="-fx-background-color: #e9c400; -fx-text-fill: #0e1226; -fx-background-radius: 999; -fx-font-weight: 700; -fx-padding: 8 18; -fx-effect: dropshadow(gaussian, rgba(233,196,0,0.28), 14, 0.2, 0, 0);" text="Play" />
             <Button fx:id="cashOutButton" mnemonicParsing="false" style="-fx-background-color: rgba(48,51,73,0.85); -fx-text-fill: #e7e9f1; -fx-background-radius: 999; -fx-font-weight: 700; -fx-padding: 8 18; -fx-effect: dropshadow(gaussian, rgba(190,197,234,0.08), 20, 0.2, 0, 6);" text="Cash Out" />
+            <Button mnemonicParsing="false" onAction="#closeWindow" style="-fx-background-color: rgba(48,51,73,0.85); -fx-text-fill: #e7e9f1; -fx-background-radius: 999; -fx-font-weight: 700; -fx-padding: 8 18;" text="Back" />
          </children>
          <padding>
             <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />

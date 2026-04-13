@@ -13,6 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -129,6 +130,13 @@ public class FlappyGameController {
         if (loop != null) {
             loop.stop();
         }
+    }
+
+    @FXML
+    private void closeWindow() {
+        shutdown();
+        Stage stage = (Stage) canvas.getScene().getWindow();
+        stage.close();
     }
 
     private void createAndStartLoop() {
