@@ -2,6 +2,7 @@ module com.example.meow {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
+    requires jdk.jsobject;
     requires java.sql;
     requires org.xerial.sqlitejdbc;
 

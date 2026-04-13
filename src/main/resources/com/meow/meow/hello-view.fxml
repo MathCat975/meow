@@ -17,7 +17,7 @@
             <Image url="@logo.png" />
          </image>
       </ImageView>
-      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="67.0" layoutY="183.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="plusOuMoinsCard" fitHeight="150.0" fitWidth="200.0" layoutX="67.0" layoutY="183.0" onMouseClicked="#handlePlusOuMoinsClick" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@plusoumoins.png" />
          </image>
@@ -32,7 +32,7 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </ImageView>
-      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="284.0" layoutY="183.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="trueOrFalseCard" fitHeight="150.0" fitWidth="200.0" layoutX="284.0" layoutY="183.0" onMouseClicked="#handleTrueOrFalseClick" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@vraioufaux.png" />
          </image>
@@ -47,7 +47,7 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </ImageView>
-      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="502.0" layoutY="183.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="hangmanCard" fitHeight="150.0" fitWidth="200.0" layoutX="502.0" layoutY="183.0" onMouseClicked="#handleHangmanClick" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@pendu.png" />
          </image>
@@ -62,7 +62,7 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </ImageView>
-      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="719.0" layoutY="183.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="memoryCard" fitHeight="150.0" fitWidth="200.0" layoutX="719.0" layoutY="183.0" onMouseClicked="#handleMemoryClick" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@memory.png" />
          </image>

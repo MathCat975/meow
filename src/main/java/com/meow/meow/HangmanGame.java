@@ -1,3 +1,5 @@
+package com.meow.meow;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -26,34 +28,45 @@ import java.util.Random;
 import java.util.Set;
 
 public class HangmanGame extends Application {
-    private static final int WINDOW_WIDTH = 920;
-    private static final int WINDOW_HEIGHT = 560;
+    private static final int WINDOW_WIDTH = 1040;
+    private static final int WINDOW_HEIGHT = 620;
     private static final int MAX_WRONG_GUESSES = 10;
     private static final Path WORDS_PATH = Path.of("data", "hangman_words.txt");
+    private static final List<String> DEFAULT_WORDS = List.of(
+            "chat", "casino", "java", "pendu", "memoire", "chance", "flappy", "blackjack"
+    );
 
     private final Random random = new Random();
     private final List<String> words = new ArrayList<>();
     private final Set<Character> guessedLetters = new LinkedHashSet<>();
     private final Set<Character> wrongLetters = new LinkedHashSet<>();
+    private final GameBetSupport betSupport = new GameBetSupport("hangman");
 
-    private String secretWord;
-    private boolean gameFinished;
+    private String secretWord = "";
+    private boolean gameFinished = true;
     private int score;
 
     private Label wordLabel;
     private Label statusLabel;
     private Label attemptsLabel;
     private Label scoreLabel;
+    private Label balanceLabel;
+    private Label activeBetLabel;
+    private Label potentialPayoutLabel;
     private Label wrongLettersLabel;
     private TextField letterField;
     private TextField wordField;
-    private Button guessButton;
-    private Button newGameButton;
+    private TextField betField;
     private Canvas hangmanCanvas;
     private FlowPane keyboardPane;
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    @Override
+    public void stop() {
+        betSupport.forfeitRound(score);
     }
 
     @Override
@@ -70,7 +83,7 @@ public class HangmanGame extends Application {
                 """);
 
         VBox content = new VBox(6);
-        content.setMaxWidth(820);
+        content.setMaxWidth(Double.MAX_VALUE);
         content.setFillWidth(true);
         content.setAlignment(Pos.TOP_CENTER);
 
@@ -96,7 +109,7 @@ public class HangmanGame extends Application {
         HBox.setHgrow(rightColumn, Priority.ALWAYS);
 
         VBox gameCard = createCardContainer(8);
-        gameCard.setAlignment(Pos.CENTER);
+        gameCard.setAlignment(Pos.TOP_CENTER);
         Label gameTitle = sectionTitle("Hangman");
 
         hangmanCanvas = new Canvas(180, 125);
@@ -126,22 +139,25 @@ public class HangmanGame extends Application {
             }
         });
 
-        guessButton = new Button("Guess");
+        Button guessButton = new Button("Guess");
         guessButton.setStyle(primaryButtonStyle());
         guessButton.setOnAction(event -> handleTypedGuess());
 
-        newGameButton = new Button("New game");
+        Button newGameButton = new Button("New game");
         newGameButton.setStyle(secondaryButtonStyle());
         newGameButton.setOnAction(event -> startNewGame());
 
-        HBox inputRow = new HBox(6, letterField, guessButton, newGameButton);
+        Button cashOutButton = new Button("Cash out");
+        cashOutButton.setStyle(secondaryButtonStyle());
+        cashOutButton.setOnAction(event -> cashOutRound());
+
+        HBox inputRow = new HBox(6, letterField, guessButton, newGameButton, cashOutButton);
         inputRow.setAlignment(Pos.CENTER);
 
-        statusLabel = new Label("Pick a letter to guess the hidden word.");
+        statusLabel = new Label();
         statusLabel.setWrapText(true);
         statusLabel.setAlignment(Pos.CENTER);
         statusLabel.setMinHeight(28);
-        statusLabel.setStyle(messageStyle("#EEF7FF", "#9D50BB"));
 
         wrongLettersLabel = new Label("Wrong letters: none");
         wrongLettersLabel.setWrapText(true);
@@ -152,12 +168,19 @@ public class HangmanGame extends Application {
 
         VBox statsCard = createCardContainer(8);
         Label statsTitle = sectionTitle("Progress");
+        balanceLabel = infoPill();
+        activeBetLabel = infoPill();
+        potentialPayoutLabel = infoPill();
+        betField = new TextField();
+        betField.setPromptText("Bet amount");
+        betField.setMaxWidth(Double.MAX_VALUE);
+        betField.setStyle(inputStyle());
         attemptsLabel = infoPill();
         scoreLabel = infoPill();
-        statsCard.getChildren().addAll(statsTitle, attemptsLabel, scoreLabel);
+        statsCard.getChildren().addAll(statsTitle, balanceLabel, activeBetLabel, potentialPayoutLabel, betField, attemptsLabel, scoreLabel);
 
         VBox keyboardCard = createCardContainer(8);
-        keyboardCard.setAlignment(Pos.CENTER);
+        keyboardCard.setAlignment(Pos.TOP_CENTER);
         Label keyboardTitle = sectionTitle("Keyboard");
         keyboardPane = new FlowPane();
         keyboardPane.setHgap(4);
@@ -167,7 +190,7 @@ public class HangmanGame extends Application {
         keyboardCard.getChildren().addAll(keyboardTitle, keyboardPane);
 
         VBox addWordCard = createCardContainer(8);
-        addWordCard.setAlignment(Pos.CENTER);
+        addWordCard.setAlignment(Pos.TOP_CENTER);
         Label addWordTitle = sectionTitle("Add a word");
         wordField = new TextField();
         wordField.setPromptText("Write a new word");
@@ -188,25 +211,31 @@ public class HangmanGame extends Application {
         root.setCenter(content);
         BorderPane.setAlignment(content, Pos.CENTER);
 
-        startNewGame();
+        prepareGame();
 
         Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
         stage.setResizable(false);
-        stage.setWidth(WINDOW_WIDTH);
-        stage.setHeight(WINDOW_HEIGHT);
         stage.setScene(scene);
+        stage.sizeToScene();
         stage.show();
     }
 
     private void startNewGame() {
+        if (betSupport.hasActiveRound()) {
+            betSupport.forfeitRound(score);
+        }
+
+        String error = betSupport.startRound(betField.getText());
+        if (error != null) {
+            setStatus(error, "#FFE5EC", "#FF8CAB");
+            refreshBetDisplay();
+            return;
+        }
+
         if (words.isEmpty()) {
-            secretWord = "";
-            gameFinished = true;
-            wordLabel.setText("NO WORDS");
-            statusLabel.setText("Add a word to start the game.");
-            statusLabel.setStyle(messageStyle("#FFE5EC", "#FF8CAB"));
-            updateStats();
-            drawHangman();
+            setStatus("Add a word to start the game.", "#FFE5EC", "#FF8CAB");
+            betSupport.forfeitRound(0);
+            refreshBetDisplay();
             return;
         }
 
@@ -216,13 +245,40 @@ public class HangmanGame extends Application {
         gameFinished = false;
         score = 0;
         letterField.clear();
-        statusLabel.setText("Pick a letter to guess the hidden word.");
-        statusLabel.setStyle(messageStyle("#EEF7FF", "#9D50BB"));
+        setStatus("Pick a letter to guess the hidden word.", "#EEF7FF", "#9D50BB");
         updateWordDisplay();
-        updateStats();
         updateWrongLetters();
+        updateStats();
         drawHangman();
         updateKeyboardState();
+        refreshBetDisplay();
+    }
+
+    private void prepareGame() {
+        guessedLetters.clear();
+        wrongLetters.clear();
+        secretWord = "";
+        score = 0;
+        gameFinished = true;
+        wordLabel.setText("BET REQUIRED");
+        wrongLettersLabel.setText("Wrong letters: none");
+        setStatus("Enter a bet, then click New game.", "#EEF7FF", "#9D50BB");
+        updateStats();
+        drawHangman();
+        updateKeyboardState();
+        refreshBetDisplay();
+    }
+
+    private void cashOutRound() {
+        if (!betSupport.hasActiveRound()) {
+            setStatus("No active round to cash out.", "#FFF7E1", "#FFD700");
+            return;
+        }
+        gameFinished = true;
+        GameBetSupport.BetResult result = betSupport.settleRound(score, currentMultiplier());
+        updateKeyboardState();
+        setStatus("Cash out successful. Gain: $" + String.format("%.2f", result.netChange()) + ".", "#E8FFF2", "#59D68C");
+        refreshBetDisplay();
     }
 
     private void handleTypedGuess() {
@@ -237,15 +293,17 @@ public class HangmanGame extends Application {
     }
 
     private void handleGuess(char letter) {
+        if (!betSupport.hasActiveRound()) {
+            setStatus("Enter a bet and start a round first.", "#FFE5EC", "#FF8CAB");
+            return;
+        }
         if (gameFinished) {
             return;
         }
-
         if (letter < 'A' || letter > 'Z') {
             setStatus("Only letters A to Z are allowed.", "#FFE5EC", "#FF8CAB");
             return;
         }
-
         if (guessedLetters.contains(letter) || wrongLetters.contains(letter)) {
             setStatus("Letter already used.", "#FFF7E1", "#FFD700");
             return;
@@ -255,6 +313,7 @@ public class HangmanGame extends Application {
             guessedLetters.add(letter);
             score += 10;
             setStatus("Good guess.", "#E8FFF2", "#59D68C");
+            refreshBetDisplay();
         } else {
             wrongLetters.add(letter);
             setStatus("Wrong guess.", "#FFE5EC", "#FF8CAB");
@@ -265,21 +324,25 @@ public class HangmanGame extends Application {
         updateStats();
         drawHangman();
         updateKeyboardState();
+
         checkGameState();
     }
 
     private void checkGameState() {
         if (isWordSolved()) {
             gameFinished = true;
-            setStatus("You found the word: " + secretWord, "#FFF7E1", "#FFD700");
+            GameBetSupport.BetResult result = betSupport.settleRound(score, currentMultiplier());
+            setStatus("You found the word: " + secretWord + ". Gain: $" + String.format("%.2f", result.netChange()) + ".", "#FFF7E1", "#FFD700");
         } else if (wrongLetters.size() >= MAX_WRONG_GUESSES) {
             gameFinished = true;
             wordLabel.setText(secretWord);
+            betSupport.settleRound(score, 0);
             setStatus("Game over. The word was " + secretWord, "#FFE5EC", "#FF8CAB");
         }
 
         if (gameFinished) {
             updateKeyboardState();
+            refreshBetDisplay();
         }
     }
 
@@ -294,7 +357,7 @@ public class HangmanGame extends Application {
 
     private void updateWordDisplay() {
         if (secretWord.isEmpty()) {
-            wordLabel.setText("");
+            wordLabel.setText("BET REQUIRED");
             return;
         }
 
@@ -316,11 +379,13 @@ public class HangmanGame extends Application {
         }
 
         StringBuilder builder = new StringBuilder("Wrong letters: ");
+        boolean first = true;
         for (char letter : wrongLetters) {
-            if (builder.length() > 15) {
+            if (!first) {
                 builder.append(", ");
             }
             builder.append(letter);
+            first = false;
         }
         wrongLettersLabel.setText(builder.toString());
     }
@@ -329,6 +394,23 @@ public class HangmanGame extends Application {
         int attemptsLeft = Math.max(0, MAX_WRONG_GUESSES - wrongLetters.size());
         attemptsLabel.setText("Attempts left: " + attemptsLeft + " / " + MAX_WRONG_GUESSES);
         scoreLabel.setText("Score: " + score);
+    }
+
+    private double currentMultiplier() {
+        if (!betSupport.hasActiveRound()) {
+            return 0;
+        }
+        return 1.0 + guessedLetters.size() * 0.25;
+    }
+
+    private void refreshBetDisplay() {
+        balanceLabel.setText("Balance: $" + String.format("%.2f", betSupport.getBalance()));
+        activeBetLabel.setText(betSupport.hasActiveRound()
+                ? "Active bet: $" + String.format("%.2f", betSupport.getActiveWager())
+                : "Active bet: none");
+        potentialPayoutLabel.setText(betSupport.hasActiveRound()
+                ? "Potential payout: $" + String.format("%.2f", betSupport.getActiveWager() * currentMultiplier())
+                : "Potential payout: none");
     }
 
     private void populateKeyboard() {
@@ -351,7 +433,7 @@ public class HangmanGame extends Application {
             }
 
             char letter = button.getText().charAt(0);
-            boolean used = guessedLetters.contains(letter) || wrongLetters.contains(letter) || gameFinished;
+            boolean used = guessedLetters.contains(letter) || wrongLetters.contains(letter) || (!betSupport.hasActiveRound()) || gameFinished;
             button.setDisable(used);
             button.setOpacity(used ? 0.55 : 1);
 
@@ -425,6 +507,7 @@ public class HangmanGame extends Application {
     private void loadWords() {
         words.clear();
         if (!Files.exists(WORDS_PATH)) {
+            seedDefaultWords();
             return;
         }
 
@@ -435,8 +518,27 @@ public class HangmanGame extends Application {
                     words.add(value);
                 }
             }
+            ensureDefaultWords();
         } catch (IOException exception) {
             throw new IllegalStateException("Unable to load hangman words.", exception);
+        }
+    }
+
+    private void seedDefaultWords() {
+        words.addAll(DEFAULT_WORDS);
+        saveWords();
+    }
+
+    private void ensureDefaultWords() {
+        boolean changed = false;
+        for (String word : DEFAULT_WORDS) {
+            if (!words.contains(word)) {
+                words.add(word);
+                changed = true;
+            }
+        }
+        if (changed) {
+            saveWords();
         }
     }
 

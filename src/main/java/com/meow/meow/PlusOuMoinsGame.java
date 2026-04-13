@@ -1,3 +1,5 @@
+package com.meow.meow;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -19,27 +21,36 @@ public class PlusOuMoinsGame extends Application {
     private static final int MIN_NUMBER = 1;
     private static final int MAX_NUMBER = 1000;
     private static final int MAX_ATTEMPTS = 10;
-    private static final int WINDOW_WIDTH = 920;
-    private static final int WINDOW_HEIGHT = 500;
+    private static final int WINDOW_WIDTH = 1040;
+    private static final int WINDOW_HEIGHT = 600;
 
     private final Random random = new Random();
+    private final GameBetSupport betSupport = new GameBetSupport("plus_ou_moins");
 
     private int secretNumber;
     private int attemptsLeft;
     private int attemptsUsed;
-    private boolean gameFinished;
+    private boolean gameFinished = true;
 
     private Label hintLabel;
     private Label scoreLabel;
     private Label attemptsLabel;
+    private Label balanceLabel;
+    private Label activeBetLabel;
+    private Label potentialPayoutLabel;
     private Label historyLabel;
     private ProgressBar attemptsBar;
     private TextField guessField;
+    private TextField betField;
     private Button validateButton;
-    private Button restartButton;
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    @Override
+    public void stop() {
+        betSupport.forfeitRound(computeScore());
     }
 
     @Override
@@ -54,7 +65,7 @@ public class PlusOuMoinsGame extends Application {
                 """);
 
         VBox content = new VBox(12);
-        content.setMaxWidth(800);
+        content.setMaxWidth(Double.MAX_VALUE);
         content.setAlignment(Pos.CENTER);
         content.setFillWidth(true);
 
@@ -80,20 +91,12 @@ public class PlusOuMoinsGame extends Application {
         HBox.setHgrow(rightColumn, Priority.ALWAYS);
 
         VBox controlCard = createCardContainer(16);
+        controlCard.setAlignment(Pos.TOP_LEFT);
         Label instructionLabel = sectionTitle("Enter your guess");
 
         guessField = new TextField();
         guessField.setPromptText("Number between 1 and 1000");
-        guessField.setStyle("""
-                -fx-background-color: #212845;
-                -fx-background-radius: 14;
-                -fx-border-color: #414B79;
-                -fx-border-radius: 14;
-                -fx-text-fill: #F4F2FF;
-                -fx-prompt-text-fill: #8F96BF;
-                -fx-font-size: 14px;
-                -fx-padding: 11 14 11 14;
-                """);
+        guessField.setStyle(inputStyle());
         guessField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
                 handleGuess();
@@ -104,11 +107,15 @@ public class PlusOuMoinsGame extends Application {
         validateButton.setStyle(primaryButtonStyle());
         validateButton.setOnAction(event -> handleGuess());
 
-        restartButton = new Button("New game");
+        Button restartButton = new Button("New game");
         restartButton.setStyle(secondaryButtonStyle());
-        restartButton.setOnAction(event -> resetGame());
+        restartButton.setOnAction(event -> startRoundWithBet());
 
-        HBox buttonRow = new HBox(10, validateButton, restartButton);
+        Button cashOutButton = new Button("Cash out");
+        cashOutButton.setStyle(secondaryButtonStyle());
+        cashOutButton.setOnAction(event -> cashOutRound());
+
+        HBox buttonRow = new HBox(10, validateButton, restartButton, cashOutButton);
         buttonRow.setAlignment(Pos.CENTER_LEFT);
 
         hintLabel = new Label();
@@ -126,20 +133,28 @@ public class PlusOuMoinsGame extends Application {
         controlCard.getChildren().addAll(instructionLabel, guessField, buttonRow, hintLabel, historyLabel);
 
         VBox scoreCard = createCardContainer(16);
+        scoreCard.setAlignment(Pos.TOP_LEFT);
         Label scoreTitle = sectionTitle("Progress");
+
+        balanceLabel = infoPill();
+        activeBetLabel = infoPill();
+        potentialPayoutLabel = infoPill();
+
+        betField = new TextField();
+        betField.setPromptText("Bet amount");
+        betField.setStyle(inputStyle());
 
         attemptsLabel = infoPill();
         scoreLabel = infoPill();
         attemptsBar = new ProgressBar(1);
         attemptsBar.setPrefWidth(Double.MAX_VALUE);
-        attemptsBar.setStyle("""
-                -fx-accent: #9D50BB;
-                """);
+        attemptsBar.setStyle("-fx-accent: #9D50BB;");
 
-        VBox progressGroup = new VBox(10, attemptsLabel, scoreLabel, attemptsBar);
+        VBox progressGroup = new VBox(10, balanceLabel, activeBetLabel, potentialPayoutLabel, betField, attemptsLabel, scoreLabel, attemptsBar);
         scoreCard.getChildren().addAll(scoreTitle, progressGroup);
 
         VBox goalCard = createCardContainer(16);
+        goalCard.setAlignment(Pos.TOP_LEFT);
         Label goalTitle = sectionTitle("Goal");
         Label goalText = new Label("Find the secret number before you run out of attempts.");
         goalText.setWrapText(true);
@@ -157,17 +172,46 @@ public class PlusOuMoinsGame extends Application {
         root.setCenter(content);
         BorderPane.setAlignment(content, Pos.CENTER);
 
-        resetGame();
+        prepareGame();
 
         Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
         stage.setResizable(false);
-        stage.setWidth(WINDOW_WIDTH);
-        stage.setHeight(WINDOW_HEIGHT);
         stage.setScene(scene);
+        stage.sizeToScene();
         stage.show();
     }
 
+    private void startRoundWithBet() {
+        if (betSupport.hasActiveRound()) {
+            betSupport.forfeitRound(computeScore());
+        }
+
+        String error = betSupport.startRound(betField.getText());
+        if (error != null) {
+            setHint(error, "#FFE5EC", "#FF8CAB");
+            refreshBetDisplay();
+            return;
+        }
+
+        secretNumber = random.nextInt(MAX_NUMBER - MIN_NUMBER + 1) + MIN_NUMBER;
+        attemptsLeft = MAX_ATTEMPTS;
+        attemptsUsed = 0;
+        gameFinished = false;
+
+        guessField.clear();
+        guessField.setDisable(false);
+        validateButton.setDisable(false);
+        historyLabel.setText("History: no attempts yet.");
+        setHint("The game has started. Make your first guess.", "#EEF7FF", "#9D50BB");
+        updateGameStatus();
+        refreshBetDisplay();
+    }
+
     private void handleGuess() {
+        if (!betSupport.hasActiveRound()) {
+            setHint("Enter a bet and start a new game first.", "#FFE5EC", "#FF8CAB");
+            return;
+        }
         if (gameFinished) {
             setHint("The game is over. Start a new game.", "#FFF7E1", "#FFD700");
             return;
@@ -197,10 +241,12 @@ public class PlusOuMoinsGame extends Application {
 
         if (guessedNumber == secretNumber) {
             gameFinished = true;
-            setHint("You found " + secretNumber + " in " + attemptsUsed + " attempt(s).", "#EEF7FF", "#9D50BB");
+            GameBetSupport.BetResult result = betSupport.settleRound(computeScore(), currentMultiplier());
+            setHint("You found " + secretNumber + " in " + attemptsUsed + " attempt(s). Gain: $" + String.format("%.2f", result.netChange()) + ".", "#EEF7FF", "#9D50BB");
             historyLabel.setText("History: " + guessedNumber + " was the correct answer.");
-            updateGameStatus();
             setControlsDisabled(true);
+            updateGameStatus();
+            refreshBetDisplay();
             return;
         }
 
@@ -211,34 +257,59 @@ public class PlusOuMoinsGame extends Application {
         }
 
         historyLabel.setText("History: attempt " + attemptsUsed + " -> " + guessedNumber);
+        refreshBetDisplay();
 
         if (attemptsLeft == 0) {
             gameFinished = true;
+            betSupport.settleRound(computeScore(), 0);
             setHint("You lost. The secret number was " + secretNumber + ".", "#FFE5EC", "#FF8CAB");
             setControlsDisabled(true);
+            refreshBetDisplay();
         }
 
         updateGameStatus();
         guessField.clear();
     }
 
-    private void resetGame() {
-        secretNumber = random.nextInt(MAX_NUMBER - MIN_NUMBER + 1) + MIN_NUMBER;
+    private void prepareGame() {
         attemptsLeft = MAX_ATTEMPTS;
         attemptsUsed = 0;
-        gameFinished = false;
-
-        setControlsDisabled(false);
+        gameFinished = true;
         guessField.clear();
         historyLabel.setText("History: no attempts yet.");
-        setHint("The game has started. Make your first guess.", "#EEF7FF", "#9D50BB");
+        setHint("Enter a bet, then click New game.", "#EEF7FF", "#9D50BB");
+        setControlsDisabled(true);
         updateGameStatus();
+        refreshBetDisplay();
+    }
+
+    private void cashOutRound() {
+        if (!betSupport.hasActiveRound()) {
+            setHint("No active round to cash out.", "#FFF7E1", "#FFD700");
+            return;
+        }
+        gameFinished = true;
+        GameBetSupport.BetResult result = betSupport.settleRound(computeScore(), currentMultiplier());
+        setControlsDisabled(true);
+        setHint("Cash out successful. Gain: $" + String.format("%.2f", result.netChange()) + ".", "#E8FFF2", "#59D68C");
+        refreshBetDisplay();
     }
 
     private void updateGameStatus() {
         attemptsLabel.setText("Attempts left: " + attemptsLeft + " / " + MAX_ATTEMPTS);
-        scoreLabel.setText("Score: " + (attemptsUsed * 10));
+        scoreLabel.setText("Score: " + computeScore());
         attemptsBar.setProgress((double) attemptsLeft / MAX_ATTEMPTS);
+    }
+
+    private int computeScore() {
+        return Math.max(0, 120 - attemptsUsed * 10);
+    }
+
+    private double currentMultiplier() {
+        if (!betSupport.hasActiveRound()) {
+            return 0;
+        }
+        return 1.0 + attemptsUsed * 0.2;
     }
 
     private void setControlsDisabled(boolean disabled) {
@@ -248,21 +319,19 @@ public class PlusOuMoinsGame extends Application {
         guessField.setOpacity(disabled ? 0.75 : 1);
     }
 
+    private void refreshBetDisplay() {
+        balanceLabel.setText("Balance: $" + String.format("%.2f", betSupport.getBalance()));
+        activeBetLabel.setText(betSupport.hasActiveRound()
+                ? "Active bet: $" + String.format("%.2f", betSupport.getActiveWager())
+                : "Active bet: none");
+        potentialPayoutLabel.setText(betSupport.hasActiveRound()
+                ? "Potential payout: $" + String.format("%.2f", betSupport.getActiveWager() * currentMultiplier())
+                : "Potential payout: none");
+    }
+
     private void setHint(String text, String textColor, String borderColor) {
         hintLabel.setText(text);
         hintLabel.setStyle(messageStyle(textColor, borderColor));
-    }
-
-    private HBox createCard() {
-        HBox box = new HBox();
-        box.setMaxWidth(Double.MAX_VALUE);
-        box.setStyle("""
-                -fx-background-color: rgba(28, 34, 64, 0.96);
-                -fx-background-radius: 22;
-                -fx-border-color: #39416B;
-                -fx-border-radius: 22;
-                """);
-        return box;
     }
 
     private VBox createCardContainer(double spacing) {
@@ -300,6 +369,19 @@ public class PlusOuMoinsGame extends Application {
                 -fx-font-size: 13px;
                 """);
         return label;
+    }
+
+    private String inputStyle() {
+        return """
+                -fx-background-color: #212845;
+                -fx-background-radius: 14;
+                -fx-border-color: #414B79;
+                -fx-border-radius: 14;
+                -fx-text-fill: #F4F2FF;
+                -fx-prompt-text-fill: #8F96BF;
+                -fx-font-size: 14px;
+                -fx-padding: 11 14 11 14;
+                """;
     }
 
     private String messageStyle(String textColor, String borderColor) {

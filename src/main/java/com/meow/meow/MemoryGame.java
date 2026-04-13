@@ -1,8 +1,10 @@
+package com.meow.meow;
+
+import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
-import javafx.animation.KeyFrame;
 import javafx.application.Application;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -31,30 +33,40 @@ import java.util.List;
 import java.util.Random;
 
 public class MemoryGame extends Application {
-    private static final int WINDOW_WIDTH = 920;
-    private static final int WINDOW_HEIGHT = 560;
+    private static final int WINDOW_WIDTH = 1040;
+    private static final int WINDOW_HEIGHT = 640;
     private static final int GRID_SIZE = 4;
     private static final int UNIQUE_CARD_COUNT = 8;
+    private static final int MAX_MISMATCHES = 5;
     private static final Path DATABASE_PATH = Path.of("data", "memory_cards.csv");
+    private static final List<String> DEFAULT_CARDS = List.of(
+            "SUN", "MOON", "STAR", "WAVE", "FIRE", "SNOW", "ROCK", "WIND"
+    );
 
     private final Random random = new Random();
     private final List<CardDefinition> databaseCards = new ArrayList<>();
     private final List<MemoryCard> boardCards = new ArrayList<>();
+    private final GameBetSupport betSupport = new GameBetSupport("memory");
 
     private GridPane boardGrid;
     private Label statusLabel;
     private Label movesLabel;
+    private Label mistakesLabel;
     private Label timerLabel;
     private Label pairsLabel;
     private Label scoreLabel;
+    private Label balanceLabel;
+    private Label activeBetLabel;
+    private Label potentialPayoutLabel;
     private TextField cardField;
-    private Button restartButton;
+    private TextField betField;
 
     private MemoryCard firstSelected;
     private MemoryCard secondSelected;
-    private boolean boardLocked;
+    private boolean boardLocked = true;
     private int moves;
     private int matchedPairs;
+    private int mismatchCount;
     private int elapsedSeconds;
     private Timeline timer;
 
@@ -76,7 +88,7 @@ public class MemoryGame extends Application {
                 """);
 
         VBox content = new VBox(8);
-        content.setMaxWidth(820);
+        content.setMaxWidth(Double.MAX_VALUE);
         content.setFillWidth(true);
         content.setAlignment(Pos.TOP_CENTER);
 
@@ -102,7 +114,7 @@ public class MemoryGame extends Application {
         HBox.setHgrow(rightColumn, Priority.ALWAYS);
 
         VBox boardCard = createCardContainer(8);
-        boardCard.setAlignment(Pos.CENTER);
+        boardCard.setAlignment(Pos.TOP_CENTER);
         Label boardTitle = sectionTitle("Memory");
 
         boardGrid = new GridPane();
@@ -121,28 +133,43 @@ public class MemoryGame extends Application {
             boardGrid.getRowConstraints().add(row);
         }
 
-        statusLabel = new Label("Find every pair in as few moves as possible.");
+        statusLabel = new Label();
         statusLabel.setWrapText(true);
         statusLabel.setAlignment(Pos.CENTER);
         statusLabel.setMinHeight(28);
-        statusLabel.setStyle(messageStyle("#EEF7FF", "#9D50BB"));
 
-        restartButton = new Button("New game");
+        Button restartButton = new Button("New game");
         restartButton.setStyle(primaryButtonStyle());
-        restartButton.setOnAction(event -> resetGame());
+        restartButton.setOnAction(event -> startRoundWithBet());
 
-        boardCard.getChildren().addAll(boardTitle, boardGrid, restartButton, statusLabel);
+        Button cashOutButton = new Button("Cash out");
+        cashOutButton.setStyle(secondaryButtonStyle());
+        cashOutButton.setOnAction(event -> cashOutRound());
+
+        HBox boardActions = new HBox(10, restartButton, cashOutButton);
+        boardActions.setAlignment(Pos.CENTER);
+
+        boardCard.getChildren().addAll(boardTitle, boardGrid, boardActions, statusLabel);
 
         VBox progressCard = createCardContainer(8);
+        progressCard.setAlignment(Pos.TOP_LEFT);
         Label progressTitle = sectionTitle("Progress");
+        balanceLabel = infoPill();
+        activeBetLabel = infoPill();
+        potentialPayoutLabel = infoPill();
+        betField = new TextField();
+        betField.setPromptText("Bet amount");
+        betField.setMaxWidth(Double.MAX_VALUE);
+        betField.setStyle(inputStyle());
         movesLabel = infoPill();
+        mistakesLabel = infoPill();
         timerLabel = infoPill();
         pairsLabel = infoPill();
         scoreLabel = infoPill();
-        progressCard.getChildren().addAll(progressTitle, movesLabel, timerLabel, pairsLabel, scoreLabel);
+        progressCard.getChildren().addAll(progressTitle, balanceLabel, activeBetLabel, potentialPayoutLabel, betField, movesLabel, mistakesLabel, timerLabel, pairsLabel, scoreLabel);
 
         VBox databaseCard = createCardContainer(8);
-        databaseCard.setAlignment(Pos.CENTER);
+        databaseCard.setAlignment(Pos.TOP_CENTER);
         Label databaseTitle = sectionTitle("Card database");
 
         Label databaseText = new Label("Symbols are loaded from the local database. Add a short label to enrich the deck.");
@@ -169,34 +196,37 @@ public class MemoryGame extends Application {
         root.setCenter(content);
         BorderPane.setAlignment(content, Pos.CENTER);
 
-        resetGame();
+        prepareGame();
 
         Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
         stage.setResizable(false);
-        stage.setWidth(WINDOW_WIDTH);
-        stage.setHeight(WINDOW_HEIGHT);
         stage.setScene(scene);
+        stage.sizeToScene();
         stage.show();
     }
 
     @Override
     public void stop() {
+        betSupport.forfeitRound(computeScore());
         stopTimer();
     }
 
-    private void resetGame() {
+    private void startRoundWithBet() {
+        if (betSupport.hasActiveRound()) {
+            betSupport.forfeitRound(computeScore());
+        }
+
+        String error = betSupport.startRound(betField.getText());
+        if (error != null) {
+            setStatus(error, "#FFE5EC", "#FF8CAB");
+            refreshBetDisplay();
+            return;
+        }
+
         if (databaseCards.size() < UNIQUE_CARD_COUNT) {
-            stopTimer();
-            boardGrid.getChildren().clear();
-            boardCards.clear();
-            firstSelected = null;
-            secondSelected = null;
-            boardLocked = true;
-            moves = 0;
-            matchedPairs = 0;
-            elapsedSeconds = 0;
+            betSupport.forfeitRound(0);
             setStatus("Add at least " + UNIQUE_CARD_COUNT + " cards to start a game.", "#FFE5EC", "#FF8CAB");
-            updateStats();
+            refreshBetDisplay();
             return;
         }
 
@@ -204,6 +234,7 @@ public class MemoryGame extends Application {
         elapsedSeconds = 0;
         moves = 0;
         matchedPairs = 0;
+        mismatchCount = 0;
         firstSelected = null;
         secondSelected = null;
         boardLocked = false;
@@ -226,11 +257,40 @@ public class MemoryGame extends Application {
 
         setStatus("Find every pair in as few moves as possible.", "#EEF7FF", "#9D50BB");
         updateStats();
+        refreshBetDisplay();
         startTimer();
     }
 
+    private void prepareGame() {
+        stopTimer();
+        boardGrid.getChildren().clear();
+        boardCards.clear();
+        firstSelected = null;
+        secondSelected = null;
+        boardLocked = true;
+        moves = 0;
+        matchedPairs = 0;
+        mismatchCount = 0;
+        elapsedSeconds = 0;
+        setStatus("Enter a bet, then click New game.", "#EEF7FF", "#9D50BB");
+        updateStats();
+        refreshBetDisplay();
+    }
+
+    private void cashOutRound() {
+        if (!betSupport.hasActiveRound()) {
+            setStatus("No active round to cash out.", "#FFF7E1", "#FFD700");
+            return;
+        }
+        boardLocked = true;
+        stopTimer();
+        GameBetSupport.BetResult result = betSupport.settleRound(computeScore(), currentMultiplier());
+        setStatus("Cash out successful. Gain: $" + String.format("%.2f", result.netChange()) + ".", "#E8FFF2", "#59D68C");
+        refreshBetDisplay();
+    }
+
     private void handleCardSelection(MemoryCard card) {
-        if (boardLocked || card.matched() || card.faceUp()) {
+        if (!betSupport.hasActiveRound() || boardLocked || card.matched() || card.faceUp()) {
             return;
         }
 
@@ -266,11 +326,12 @@ public class MemoryGame extends Application {
             clearSelection();
             boardLocked = false;
             updateStats();
+            refreshBetDisplay();
             checkVictory();
             return;
         }
 
-        setStatus("No match. Cards will flip back.", "#FFF7E1", "#FFD700");
+        setStatus("Wrong pair. You lose your bet.", "#FFE5EC", "#FF8CAB");
         PauseTransition pause = new PauseTransition(Duration.millis(700));
         pause.setOnFinished(event -> {
             firstSelected.setFaceUp(false);
@@ -278,7 +339,17 @@ public class MemoryGame extends Application {
             playFlip(firstSelected);
             playFlip(secondSelected);
             clearSelection();
-            boardLocked = false;
+            mismatchCount++;
+            updateStats();
+            if (mismatchCount >= MAX_MISMATCHES) {
+                boardLocked = true;
+                betSupport.settleRound(computeScore(), 0);
+                setStatus("Too many wrong pairs. Bet lost.", "#FFE5EC", "#FF8CAB");
+            } else {
+                boardLocked = false;
+                setStatus("Wrong pair. " + (MAX_MISMATCHES - mismatchCount) + " chances left.", "#FFF7E1", "#FFD700");
+            }
+            refreshBetDisplay();
         });
         pause.play();
     }
@@ -291,8 +362,10 @@ public class MemoryGame extends Application {
         stopTimer();
         boardLocked = true;
         int score = computeScore();
-        setStatus("All pairs found in " + moves + " moves and " + formatTime(elapsedSeconds) + ".", "#FFF7E1", "#FFD700");
+        GameBetSupport.BetResult result = betSupport.settleRound(score, currentMultiplier());
+        setStatus("All pairs found in " + moves + " moves and " + formatTime(elapsedSeconds) + ". Gain: $" + String.format("%.2f", result.netChange()) + ".", "#FFF7E1", "#FFD700");
         scoreLabel.setText("Score: " + score);
+        refreshBetDisplay();
     }
 
     private void clearSelection() {
@@ -328,6 +401,7 @@ public class MemoryGame extends Application {
 
     private void updateStats() {
         movesLabel.setText("Moves: " + moves);
+        mistakesLabel.setText("Mistakes: " + mismatchCount + " / " + MAX_MISMATCHES);
         timerLabel.setText("Time: " + formatTime(elapsedSeconds));
         pairsLabel.setText("Pairs: " + matchedPairs + " / " + UNIQUE_CARD_COUNT);
         scoreLabel.setText("Score: " + computeScore());
@@ -336,6 +410,13 @@ public class MemoryGame extends Application {
     private int computeScore() {
         int rawScore = 1000 - moves * 35 - elapsedSeconds * 3;
         return Math.max(rawScore, 0);
+    }
+
+    private double currentMultiplier() {
+        if (!betSupport.hasActiveRound()) {
+            return 0;
+        }
+        return 1.0 + matchedPairs * 0.35;
     }
 
     private void startTimer() {
@@ -383,6 +464,7 @@ public class MemoryGame extends Application {
         databaseCards.clear();
 
         if (!Files.exists(DATABASE_PATH)) {
+            seedDefaultCards();
             return;
         }
 
@@ -393,8 +475,30 @@ public class MemoryGame extends Application {
                     databaseCards.add(new CardDefinition(value));
                 }
             }
+            ensureMinimumDefaultCards();
         } catch (IOException exception) {
             throw new IllegalStateException("Unable to load the memory database.", exception);
+        }
+    }
+
+    private void seedDefaultCards() {
+        for (String label : DEFAULT_CARDS) {
+            databaseCards.add(new CardDefinition(label));
+        }
+        saveCards();
+    }
+
+    private void ensureMinimumDefaultCards() {
+        boolean changed = false;
+        for (String label : DEFAULT_CARDS) {
+            boolean exists = databaseCards.stream().anyMatch(card -> card.label().equals(label));
+            if (!exists) {
+                databaseCards.add(new CardDefinition(label));
+                changed = true;
+            }
+        }
+        if (changed) {
+            saveCards();
         }
     }
 
@@ -415,6 +519,16 @@ public class MemoryGame extends Application {
     private void setStatus(String text, String textColor, String borderColor) {
         statusLabel.setText(text);
         statusLabel.setStyle(messageStyle(textColor, borderColor));
+    }
+
+    private void refreshBetDisplay() {
+        balanceLabel.setText("Balance: $" + String.format("%.2f", betSupport.getBalance()));
+        activeBetLabel.setText(betSupport.hasActiveRound()
+                ? "Active bet: $" + String.format("%.2f", betSupport.getActiveWager())
+                : "Active bet: none");
+        potentialPayoutLabel.setText(betSupport.hasActiveRound()
+                ? "Potential payout: $" + String.format("%.2f", betSupport.getActiveWager() * currentMultiplier())
+                : "Potential payout: none");
     }
 
     private VBox createCardContainer(double spacing) {
