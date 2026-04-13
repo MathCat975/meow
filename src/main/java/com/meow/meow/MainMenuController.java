@@ -12,6 +12,9 @@ public class MainMenuController {
     @FXML
     private ImageView flappyCard;
 
+    @FXML
+    private ImageView blackjackCard;
+
     private final FlappyStorageService storage = new FlappyStorageService();
 
     @FXML
@@ -24,6 +27,13 @@ public class MainMenuController {
         Stage owner = (Stage) flappyCard.getScene().getWindow();
         FlappyGameWindow gameWindow = new FlappyGameWindow(storage, this::refreshBalance);
         gameWindow.show(owner);
+    }
+
+    @FXML
+    private void handleBlackjackClick() {
+        Stage owner = (Stage) blackjackCard.getScene().getWindow();
+        BlackjackGameWindow gameWindow = new BlackjackGameWindow();
+        gameWindow.show(owner, this::refreshBalance);
     }
 
     private void refreshBalance() {
