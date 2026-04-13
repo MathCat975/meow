@@ -5,6 +5,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import com.meow.meow.snake.SnakeGameWindow;
+import com.meow.meow.snake.SnakeStorageService;
 
 public class MainMenuController {
     @FXML
@@ -23,16 +25,27 @@ public class MainMenuController {
     private ImageView memoryCard;
 
     @FXML
+    private ImageView snakeCard;
+
+    @FXML
     private ImageView flappyCard;
 
     @FXML
     private ImageView blackjackCard;
 
     private final FlappyStorageService storage = new FlappyStorageService();
+    private final SnakeStorageService snakeStorage = new SnakeStorageService();
 
     @FXML
     private void initialize() {
         refreshBalance();
+    }
+
+    @FXML
+    private void handleSnakeClick() {
+        Stage owner = (Stage) snakeCard.getScene().getWindow();
+        SnakeGameWindow gameWindow = new SnakeGameWindow(snakeStorage, this::refreshBalance);
+        gameWindow.show(owner);
     }
 
     @FXML
