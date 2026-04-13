@@ -7,9 +7,10 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.paint.Color?>
+<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="607.0" prefWidth="1203.0" style="-fx-background-color: #0F1328;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="607.0" prefWidth="1203.0" style="-fx-background-color: #0F1328;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.meow.meow.MainMenuController">
    <children>
       <ImageView fitHeight="388.0" fitWidth="361.0" layoutX="421.0" layoutY="-112.0" pickOnBounds="true" preserveRatio="true">
          <image>
@@ -76,7 +77,7 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </ImageView>
-      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="937.0" layoutY="183.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="blackjackCard" fitHeight="150.0" fitWidth="200.0" layoutX="937.0" layoutY="183.0" onMouseClicked="#handleBlackjackClick" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@bj.png" />
          </image>
@@ -91,7 +92,7 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </ImageView>
-      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="67.0" layoutY="376.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="67.0" layoutY="376.0" onMouseClicked="#handleComingSoonClick" opacity="0.72" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@sudoku.png" />
          </image>
@@ -106,7 +107,9 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </ImageView>
-      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="284.0" layoutY="376.0" pickOnBounds="true" preserveRatio="true">
+      <Rectangle arcHeight="16.0" arcWidth="16.0" fill="#00000066" height="150.0" layoutX="67.0" layoutY="376.0" mouseTransparent="true" width="200.0" />
+      <Label alignment="CENTER" layoutX="120.0" layoutY="436.0" mouseTransparent="true" prefWidth="94.0" style="-fx-background-color: rgba(0, 0, 0, 0.70); -fx-background-radius: 14; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 4 10;" text="LOCKED" textFill="WHITE" />
+      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="284.0" layoutY="376.0" onMouseClicked="#handleComingSoonClick" opacity="0.72" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@2048.png" />
          </image>
@@ -120,6 +123,8 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </ImageView>
+      <Rectangle arcHeight="16.0" arcWidth="16.0" fill="#00000066" height="150.0" layoutX="284.0" layoutY="376.0" mouseTransparent="true" width="200.0" />
+      <Label alignment="CENTER" layoutX="337.0" layoutY="436.0" mouseTransparent="true" prefWidth="94.0" style="-fx-background-color: rgba(0, 0, 0, 0.70); -fx-background-radius: 14; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 4 10;" text="LOCKED" textFill="WHITE" />
       <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="502.0" layoutY="376.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@snake.png" />
@@ -135,7 +140,7 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </ImageView>
-      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="719.0" layoutY="374.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="flappyCard" fitHeight="150.0" fitWidth="200.0" layoutX="719.0" layoutY="374.0" onMouseClicked="#handleFlappyClick" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@flappy.png" />
          </image>
@@ -150,7 +155,7 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </ImageView>
-      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="937.0" layoutY="374.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="937.0" layoutY="374.0" onMouseClicked="#handleComingSoonClick" opacity="0.72" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@pacman.png" />
          </image>
@@ -165,7 +170,9 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </ImageView>
-      <Label layoutX="1048.0" layoutY="23.0" prefHeight="26.0" prefWidth="141.0" text="Balance:  $0" textFill="WHITE">
+      <Rectangle arcHeight="16.0" arcWidth="16.0" fill="#00000066" height="150.0" layoutX="937.0" layoutY="374.0" mouseTransparent="true" width="200.0" />
+      <Label alignment="CENTER" layoutX="990.0" layoutY="434.0" mouseTransparent="true" prefWidth="94.0" style="-fx-background-color: rgba(0, 0, 0, 0.70); -fx-background-radius: 14; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 4 10;" text="LOCKED" textFill="WHITE" />
+      <Label fx:id="balanceLabel" layoutX="1048.0" layoutY="23.0" prefHeight="26.0" prefWidth="141.0" text="Balance:  $0" textFill="WHITE">
          <font>
             <Font name="High Tower Text" size="21.0" />
          </font>

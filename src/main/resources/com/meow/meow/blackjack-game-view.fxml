@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="760.0" prefWidth="1220.0" style="-fx-background-color: radial-gradient(center 50% 40%, radius 75%, #0f5132 0%, #06281b 100%);" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.meow.meow.BlackjackGameController">
+   <top>
+      <HBox alignment="CENTER_LEFT" spacing="14.0" style="-fx-background-color: rgba(8,32,24,0.9);" BorderPane.alignment="CENTER">
+         <children>
+            <VBox alignment="CENTER_LEFT" spacing="2.0">
+               <children>
+                  <ImageView fx:id="blackjackSignView" fitHeight="58.0" fitWidth="180.0" pickOnBounds="true" preserveRatio="false" smooth="true" />
+                  <Label fx:id="signBadgeLabel" style="-fx-background-color: rgba(234,179,8,0.22); -fx-background-radius: 999; -fx-padding: 2 8;" text="♠ BLACKJACK ♥" textFill="#fde68a" />
+               </children>
+            </VBox>
+            <Label fx:id="balanceLabel" text="Balance: $0.00" textFill="#f8fafc" />
+            <Label fx:id="roundLabel" text="Round: 0" textFill="#d1d5db" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label text="Bet:" textFill="#f8fafc" />
+            <TextField fx:id="betField" prefWidth="110.0" style="-fx-background-color: #1f2937; -fx-text-fill: #f8fafc; -fx-background-radius: 10;" text="10" />
+            <Button fx:id="dealButton" mnemonicParsing="false" style="-fx-background-color: #eab308; -fx-text-fill: #111827; -fx-font-weight: 700; -fx-background-radius: 999;" text="Deal" />
+            <Button fx:id="hitButton" mnemonicParsing="false" style="-fx-background-color: #2563eb; -fx-text-fill: #f8fafc; -fx-font-weight: 700; -fx-background-radius: 999;" text="Hit" />
+            <Button fx:id="standButton" mnemonicParsing="false" style="-fx-background-color: #9333ea; -fx-text-fill: #f8fafc; -fx-font-weight: 700; -fx-background-radius: 999;" text="Stand" />
+         </children>
+         <padding>
+            <Insets bottom="12.0" left="14.0" right="14.0" top="12.0" />
+         </padding>
+      </HBox>
+   </top>
+   <center>
+      <VBox spacing="24.0" style="-fx-padding: 22;">
+         <children>
+            <VBox spacing="8.0" style="-fx-background-color: rgba(5,35,24,0.55); -fx-background-radius: 20; -fx-padding: 16;">
+               <children>
+                  <Label fx:id="dealerValueLabel" text="Dealer: 0" textFill="#f8fafc" />
+                  <HBox fx:id="dealerCardsBox" minHeight="140.0" spacing="12.0" />
+               </children>
+            </VBox>
+            <VBox spacing="8.0" style="-fx-background-color: rgba(5,35,24,0.55); -fx-background-radius: 20; -fx-padding: 16;">
+               <children>
+                  <Label fx:id="playerValueLabel" text="Player: 0" textFill="#f8fafc" />
+                  <HBox fx:id="playerCardsBox" minHeight="140.0" spacing="12.0" />
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </center>
+   <right>
+      <VBox prefWidth="250.0" spacing="10.0" style="-fx-background-color: rgba(7,21,16,0.9); -fx-padding: 16;">
+         <children>
+            <Label text="Performance" textFill="#f8fafc" />
+            <Label fx:id="winsLabel" text="Wins: 0" textFill="#86efac" />
+            <Label fx:id="lossesLabel" text="Losses: 0" textFill="#fca5a5" />
+            <Label fx:id="pushesLabel" text="Pushes: 0" textFill="#d1d5db" />
+            <Label fx:id="netLabel" text="Net: $0.00" textFill="#f8fafc" />
+         </children>
+      </VBox>
+   </right>
+   <bottom>
+      <HBox alignment="CENTER_LEFT" style="-fx-background-color: rgba(8,32,24,0.95);" BorderPane.alignment="CENTER">
+         <children>
+            <Label fx:id="statusLabel" text="Place your bet and press Deal." textFill="#f8fafc" />
+         </children>
+         <padding>
+            <Insets bottom="12.0" left="14.0" right="14.0" top="12.0" />
+         </padding>
+      </HBox>
+   </bottom>
+</BorderPane>
