@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+
+<BorderPane prefHeight="660.0" prefWidth="1260.0" style="-fx-background-color: radial-gradient(center 35% 35%, radius 85%, #050d29 0%, #0e1226 100%);" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.meow.meow.FlappyGameController">
+   <top>
+      <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-background-color: rgba(22,26,47,0.85); -fx-background-radius: 0 0 24 24;" BorderPane.alignment="CENTER">
+         <children>
+            <Label fx:id="scoreLabel" text="Score: 0" textFill="#e7e9f1" />
+            <Label fx:id="bestScoreLabel" text="Best: 0" textFill="#c7c5cd" />
+            <Label fx:id="multiplierLabel" text="Multiplier: x0.00" textFill="#e7e9f1" />
+            <Label fx:id="difficultyLabel" text="Difficulty: 1" textFill="#c7c5cd" />
+            <Label fx:id="windLabel" text="Wind: calm" textFill="#c7c5cd" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label text="Wager:" textFill="#e7e9f1" />
+            <TextField fx:id="wagerField" prefWidth="90.0" style="-fx-background-color: #303349; -fx-text-fill: #e7e9f1; -fx-background-radius: 999; -fx-padding: 8 12; -fx-prompt-text-fill: #8e91a6;" text="10" />
+            <Button fx:id="startButton" mnemonicParsing="false" style="-fx-background-color: #e9c400; -fx-text-fill: #0e1226; -fx-background-radius: 999; -fx-font-weight: 700; -fx-padding: 8 18; -fx-effect: dropshadow(gaussian, rgba(233,196,0,0.28), 14, 0.2, 0, 0);" text="Play" />
+            <Button fx:id="cashOutButton" mnemonicParsing="false" style="-fx-background-color: rgba(48,51,73,0.85); -fx-text-fill: #e7e9f1; -fx-background-radius: 999; -fx-font-weight: 700; -fx-padding: 8 18; -fx-effect: dropshadow(gaussian, rgba(190,197,234,0.08), 20, 0.2, 0, 6);" text="Cash Out" />
+         </children>
+         <padding>
+            <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+         </padding>
+      </HBox>
+   </top>
+   <center>
+      <StackPane prefHeight="560.0" prefWidth="960.0" BorderPane.alignment="CENTER">
+         <children>
+            <Canvas fx:id="canvas" height="560.0" width="960.0" />
+            <Rectangle arcHeight="8.0" arcWidth="8.0" fill="#9ca3af" height="70.0" width="960.0" StackPane.alignment="BOTTOM_CENTER" />
+         </children>
+      </StackPane>
+   </center>
+   <right>
+      <VBox prefWidth="300.0" spacing="10.0" style="-fx-background-color: #161a2f;" BorderPane.alignment="CENTER">
+         <children>
+            <Label fx:id="balanceLabel" text="Balance: $0.00" textFill="#e7e9f1" />
+            <Label text="Top Scores" textFill="#e7e9f1" />
+            <ListView fx:id="scoreboard" style="-fx-control-inner-background: #303349; -fx-background-color: #303349; -fx-background-insets: 0; -fx-padding: 8; -fx-background-radius: 18;" VBox.vgrow="ALWAYS" />
+         </children>
+         <padding>
+            <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+         </padding>
+      </VBox>
+   </right>
+   <bottom>
+      <HBox style="-fx-background-color: #161a2f;" BorderPane.alignment="CENTER">
+         <children>
+            <Label fx:id="statusLabel" text="Enter a wager then click Start." textFill="#c7c5cd" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="12.0" right="12.0" top="10.0" />
+         </padding>
+      </HBox>
+   </bottom>
+</BorderPane>
