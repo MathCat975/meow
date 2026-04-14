@@ -92,9 +92,9 @@ public class MainMenuController {
     @FXML
     private void handleComingSoonClick() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Comming Soon");
+        alert.setTitle("Coming Soon");
         alert.setHeaderText(null);
-        alert.setContentText("Comming Soon");
+        alert.setContentText("Coming Soon");
         alert.showAndWait();
     }
 
