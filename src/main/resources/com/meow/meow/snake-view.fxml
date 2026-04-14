@@ -16,7 +16,7 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<StackPane prefHeight="620.0" prefWidth="1040.0" style="-fx-background-color: #0F1328;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.meow.meow.snake.SnakeGameController">
+<StackPane prefHeight="620.0" prefWidth="1040.0" style="-fx-background-color: #0F1328;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.meow.meow.games.snake.SnakeGameController">
     <children>
         <BorderPane>
             <top>

@@ -15,6 +15,8 @@ module com.example.meow {
     requires com.almasb.fxgl.all;
 
     opens com.meow.meow to javafx.fxml;
-    opens com.meow.meow.snake to javafx.fxml;
+    opens com.meow.meow.games.blackjack to javafx.fxml;
+    opens com.meow.meow.games.flappy to javafx.fxml;
+    opens com.meow.meow.games.snake to javafx.fxml;
     exports com.meow.meow;
 }

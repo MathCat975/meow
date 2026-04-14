@@ -1,12 +1,19 @@
 package com.meow.meow;
 
+import com.meow.meow.games.blackjack.BlackjackGameWindow;
+import com.meow.meow.games.flappy.FlappyGameWindow;
+import com.meow.meow.games.flappy.FlappyStorageService;
+import com.meow.meow.games.hangman.HangmanGame;
+import com.meow.meow.games.memory.MemoryGame;
+import com.meow.meow.games.plusoumoins.PlusOuMoinsGame;
+import com.meow.meow.games.snake.SnakeGameWindow;
+import com.meow.meow.games.snake.SnakeStorageService;
+import com.meow.meow.games.trueorfalse.TrueOrFalseGame;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-import com.meow.meow.snake.SnakeGameWindow;
-import com.meow.meow.snake.SnakeStorageService;
 
 public class MainMenuController {
     @FXML

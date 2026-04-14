@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
 
-<BorderPane prefHeight="660.0" prefWidth="1260.0" style="-fx-background-color: radial-gradient(center 35% 35%, radius 85%, #050d29 0%, #0e1226 100%);" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.meow.meow.FlappyGameController">
+<BorderPane prefHeight="660.0" prefWidth="1260.0" style="-fx-background-color: radial-gradient(center 35% 35%, radius 85%, #050d29 0%, #0e1226 100%);" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.meow.meow.games.flappy.FlappyGameController">
    <top>
       <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-background-color: rgba(22,26,47,0.85); -fx-background-radius: 0 0 24 24;" BorderPane.alignment="CENTER">
          <children>

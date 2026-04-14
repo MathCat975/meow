@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="760.0" prefWidth="1220.0" style="-fx-background-color: radial-gradient(center 50% 40%, radius 75%, #0f5132 0%, #06281b 100%);" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.meow.meow.BlackjackGameController">
+<BorderPane prefHeight="760.0" prefWidth="1220.0" style="-fx-background-color: radial-gradient(center 50% 40%, radius 75%, #0f5132 0%, #06281b 100%);" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.meow.meow.games.blackjack.BlackjackGameController">
    <top>
       <HBox alignment="CENTER_LEFT" spacing="14.0" style="-fx-background-color: rgba(8,32,24,0.9);" BorderPane.alignment="CENTER">
          <children>
